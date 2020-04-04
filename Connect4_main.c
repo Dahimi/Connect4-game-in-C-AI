@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include<time.h> 
 #define L 6 
 #define C 7
 
@@ -121,8 +122,11 @@
  	isFree = 0;
  	int j;
  	switch(niveau){
- 		case 1: j=0;
- 			break;
+ 		case 1: {
+ 			srand(time(0)); 
+ 		  	j = rand() % 7 ;
+			break;
+		 }
  		case 2: j=2;
  			break;
  		case 3:j =3;
@@ -144,7 +148,7 @@
 	// voir si ce joueur est un winner 
 	if(isThere_Winner('X',i,j) == 1) {
 		isWinner = 1 ;
-	printf(" \n 	Le	match est perdu 	!	!	! \n");
+	printf(" \n   L'ordinateur a gagné :	Le	match est perdu 	!	!	! \n");
 	
 }
  }
@@ -195,18 +199,16 @@
 	}
 	do{
 	
-	printf( " veuillez choisir le mode du jeu :\n");
-	printf(" \t  1-Mode un seul joueur 					2-Mode deux joueur \n");
+	printf( "\n\n veuillez choisir le mode du jeu :\n");
+	printf("\n\n \t  1-Mode un seul joueur 					2-Mode deux joueur \n");
 	scanf("%d",&mode);
 	}
-	while(mode != 1 && mode !=2);
-	
-
+	while(mode != 1 && mode !=2);	
  } 
 
  void playWithTheComputer(int niveau){
- 	printf("Vous etes le joueur : O \n");
- 	affichage();
+ 	printf("			Vous etes le joueur : O \n");
+ 	printf("\n			OK ! LET'S GET STARTED !!!!");
  		
 	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille est pleine
 	
@@ -254,16 +256,14 @@
 	if(grillePleine() == 1 )
 			printf("le match est NULLLL ");
  }
-  
-  
+   
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 
 int main(int argc, char *argv[]) {
 	// initialisation de la grille (not affichage!)
 	initialization ();
 	if(mode == 1) modeSeulJoueur();
-	else modeDeuxJoueur();
-	
+	else modeDeuxJoueur();	
 	return 0;
 	// fin du jeu 
 }
