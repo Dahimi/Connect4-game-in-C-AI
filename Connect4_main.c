@@ -8,6 +8,7 @@
 	int isFree = 0 ;
 	char X = 'X', O = 'O' ;
 	int isWinner = 0 ;
+	int mode ;
 //  cette fonction teste s'il y a un alignement vertical	
  int verticalement(char a , int j){
   	  	int compteur =0 ;
@@ -116,7 +117,37 @@
  }
  
  
- 
+ void computerTurn(niveau){
+ 	isFree = 0;
+ 	int j;
+ 	switch(niveau){
+ 		case 1: j=0;
+ 			break;
+ 		case 2: j=2;
+ 			break;
+ 		case 3:j =3;
+ 			break;
+	 }
+ 		i= L-1;
+		while(isFree == 0 && i >= 0 ){
+			
+			if(grille[i][j]==' ')			
+			isFree = 1;			
+			else
+			i--;
+		}
+ 	if( isFree == 0) {
+	   computerTurn(niveau);
+	}
+	else 	
+	grille[i][j]= 'X' ;
+	// voir si ce joueur est un winner 
+	if(isThere_Winner('X',i,j) == 1) {
+		isWinner = 1 ;
+	printf(" \n 	Le	match est perdu 	!	!	! \n");
+	
+}
+ }
  void demandeAuJoueur(char a){
  	isFree = 0;
  		printf("joueur %c entrez le numero de la colonne \n",a);
@@ -147,12 +178,9 @@
 }
   }
   
-   
-  
-  
-/* run this program using the console pauser or add your own getch, system("pause") or input loop */
-
-int main(int argc, char *argv[]) {
+ void initialization(){
+ 	
+	char entrer =' ';
 	for(i=0;i<L;i++){
 		for(j=0;j<C;j++)
 		{
@@ -160,8 +188,54 @@ int main(int argc, char *argv[]) {
 		grille[i][j]=' ';}
 		}
 	}
-	printf("\n");
-	printf("joueur1 : X \n");
+	printf("\n\n\n\t\t		Bienvenue à Puissance4  \n\n\n ");
+	printf("\n 				click Entrer  pour continuer  ");
+	while ( entrer!= '\n' ){
+		scanf("%c",&entrer);
+	}
+	do{
+	
+	printf( " veuillez choisir le mode du jeu :\n");
+	printf(" \t  1-Mode un seul joueur 					2-Mode deux joueur \n");
+	scanf("%d",&mode);
+	}
+	while(mode != 1 && mode !=2);
+	
+
+ } 
+
+ void playWithTheComputer(int niveau){
+ 	printf("Vous etes le joueur : O \n");
+ 	affichage();
+ 		
+	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille est pleine
+	
+	computerTurn(niveau);	
+	affichage();
+	// si le joureur l'ordinateur  a gagné on arrete le jeu 
+	if(isWinner == 1) return;
+	demandeAuJoueur(O);
+	affichage();
+	// si le joureur O  a gagné on arrete le jeu 
+	if(isWinner == 1) return;
+	}
+	// si la grille est pleine on dit que le match est nul 
+	if(grillePleine() == 1 )
+			printf("le match est NULLLL ");
+ }
+ 
+ void modeSeulJoueur(){
+ 	int niveau ;
+ 	do{	
+	printf( " veuillez choisir le niveau du jeu :\n");
+	printf(" \t  1- DEBUTANT* 					2- INTERMEDIAIRE** 			 3- EXPERT *** \n");
+	scanf("%d",&niveau);
+	}
+	while(niveau != 1 && niveau !=2 && niveau != 3);
+ 	playWithTheComputer(niveau);
+ }
+ void modeDeuxJoueur(){
+ 	printf("joueur1 : X \n");
 	printf("joueur2 : O \n");
 	affichage();
 	
@@ -179,6 +253,17 @@ int main(int argc, char *argv[]) {
 	// si la grille est pleine on dit que le match est nul 
 	if(grillePleine() == 1 )
 			printf("le match est NULLLL ");
+ }
+  
+  
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+
+int main(int argc, char *argv[]) {
+	// initialisation de la grille (not affichage!)
+	initialization ();
+	if(mode == 1) modeSeulJoueur();
+	else modeDeuxJoueur();
+	
 	return 0;
 	// fin du jeu 
 }
