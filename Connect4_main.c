@@ -10,6 +10,10 @@
 	char X = 'X', O = 'O' ;
 	int isWinner = 0 ;
 	int mode ;
+	int max_value = 0;
+	int somme_value_player = 0;
+	int somme_value_opponent = 0;
+	int EvaluationTable[C] ;
 //  cette fonction teste s'il y a un alignement vertical	
  int verticalement(char a , int j){
   	  	int compteur =0 ;
@@ -116,9 +120,12 @@
 	}
 	printf("\t 1 2 3 4 5 6 7 \n");
  }
+ 	// cette fonctiion nous permet de trouver la valeur maximal de deux nombre
+ 	int max(int a, int b){
+ 		return (a <= b) ? b: a;
+	 }
  
- 
- void computerTurn(niveau){
+ void computerTurn(int niveau){
  	isFree = 0;
  	int j;
  	switch(niveau){
@@ -261,9 +268,15 @@
 
 int main(int argc, char *argv[]) {
 	// initialisation de la grille (not affichage!)
+//	int playAgain = 1;
+//	while(playAgain == 1){
+	
 	initialization ();
 	if(mode == 1) modeSeulJoueur();
-	else modeDeuxJoueur();	
+	else modeDeuxJoueur();
+
+	
+//}//
 	return 0;
 	// fin du jeu 
 }
