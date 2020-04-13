@@ -10,133 +10,71 @@
 	char X = 'X', O = 'O' ;
 	int isWinner = 0 ;
 	int mode ;
-	
-	int max_value = 0;
-	int somme_value_player = 0;
-	int somme_value_opponent = 0;
-	int EvaluationTable[C] ;
-	
-	// cette fonctiion nous permet de trouver la valeur maximal de deux nombre
- 	int max(int a, int b){
- 		return (a <= b) ? b: a;
-	 }
-	 int maxTable(int T[], int taille){
-	 	// find the max 
-	 	int maximum = 0;
-	 	int j ;
-	 
-	 	for(j = 0 ; j < taille ; j++){
-	 	maximum= max(maximum , T[j]);}
-	 	// gettiing the index 
-	 	for(j = 0 ; j < taille ; j++){		 
-	 	if( T[j]== maximum) return  j;
-	 }
-	 }
-	void creerGrille(char grilleTemporaire[L][C],char grille[L][C]) {
- 	for(i=0;i<L;i++){
-		for(j=0;j<C;j++)
-		{					
-		grilleTemporaire[i][j]=grille[i][j];
-		}
-	}
- }
- 	int maxRectifie(int max ){
- 		switch(max){
- 			case 0 : return 0;
- 		
- 			case 1 : return 100 ;
- 			case 2 : return 200 ;
- 			case 3 : return 300;
- 			case 4 : return 10000;
-	 	}
-	 }
-	int CurrentLine(int j){
- 		int i ;
- 		for(i = L-1 ; i >= 0 ; i--) {
- 		if(grille[i][j] == ' ') return i;
-	 }
-	 
-	 return -1;
- 	
- }
 //  cette fonction teste s'il y a un alignement vertical	
- int verticalement(char a ,int i , int j,char grille[L][C]){
+ int verticalement(char a , int j){
   	  	int compteur =0 ;
-  	  	max_value = 0;
   	  	int x;
   	  	for(x = 0 ; x < L ; x++){
   	  		if(grille[x][j] ==a)
 					compteur++;			
 			else    compteur =0 ;
-			if( (x - compteur) <= i && x >= i  )
-			max_value = max(compteur,max_value);			
 				if(compteur >= 4) return 1;
 			}
 			 return 0 ;
 		}
 		
 	// cette methode teste s'il y a un alignement horizontal	
-  int  horizontalement(char a , int i,int j ,char grille[L][C]){
+  int  horizontalement(char a , int i){
   	  	int compteur =0 ;
-  	  	max_value = 0;
   	  	int x;
   	  	for(x = 0 ; x < C ; x++){
   	  		
   	  	  if(grille[i][x] ==a)
 				 compteur++;
 		 else    compteur =0 ;
-		 if( (x - compteur) <= j && x >= j  )
-		 max_value = max(compteur,max_value);
 		 if(compteur >= 4) return 1;
 			}
 		 return 0 ;
 		}	
 
 
-  // cette methode teste s'il y a un alignement incliné dans le sens  "\"
+  // cette methode teste s'il y a un alignement incliné dans le sens  "/"
   
-    int incline1(char a , int i , int j,char grille[L][C]){
+    int incline1(char a , int i , int j){
     	// on va essayer de trouver l'equation de la droite qui passe par M(j,i) et M'(j-1,i-1) 
     	// l'equation est y = x + i - j avec y est ordonne (les lignes ) et x l abscisse (colonne)
     	// alors au lieu de parcourir une droite hor ou verti on va parcourir cette droite que nous venons de trouver son equation
     	int compteur =0 ;
-    	max_value = 0;
   	  	int x;
   	  	int y ;
-  	  	for(x = 0 ;( x < C ); x++ ){ 
+  	  	for(x = 0 ;( x < C && x + i -j < L); x++ ){ 
 			y  = x + i-j ;	
-			if(y >= 0 && y < L){
-			
   	  	  if(grille[y][x] ==a)
 				 compteur++;
 		 else    compteur =0 ;
-		  if( (x - compteur) <= j && x >= j  )
-		 max_value = max(compteur,max_value);
 		 if(compteur >= 4) return 1;
 			}
-		}
 		 return 0 ;
 	}
 	
-	  // cette methode teste s'il y a un alignement incliné dans le sens "/"
+	  // cette methode teste s'il y a un alignement incliné dans le sens "\"
 	  
-	 int incline2(char a , int i , int j,char grille[L][C]){
+	 int incline2(char a , int i , int j){
 	 	// on va essayer de trouver l'equation de la droite qui passe par M(j,i) et M'(j+1,i-1) 
     	// l'equation est y = -x + i + j avec y est ordonne (les lignes ) et x l abscisse (colonne)
     	// alors au lieu de parcourir une droite hor ou verti on va parcourir cette droite que nous venons de trouver son equation
     	int compteur =0 ;
-    	max_value = 0;
   	  	int x;
   	  	int y ;
-  	  	for(x = 0 ;( x < C ); x++ ){ 
+  	  	for(x = 0 ;( x < C && -x + i +j < L); x++ ){ 
   	  	 y  = -x + i +j ;
-			if (y >= 0 && y < L){
+			if (y >= 0){
 			
   	  	  if(grille[y][x] ==a)
-			 compteur++;		 						 				 
+			{
+					 compteur++;		 						 
+				 }
 		 else    compteur =0 ;
-		  if( (x - compteur) <= j && x >= j  )
-		 max_value = max(compteur,max_value);
 		 if(compteur >= 4) return 1;
 			}}
     	return 0;
@@ -144,12 +82,12 @@
 
 
 	// cette methode (fonction) test s'il y a une vainqueur 
-  int isThere_Winner(char a , int i , int j,char grille[L][C]){
+  int isThere_Winner(char a , int i , int j){
   	// pour ce faire on realise le test dans les quatres directions
-  	if(verticalement(a,i,j,grille) ==1) return 1;
-  	if(horizontalement(a,i,j,grille) == 1) return 1;
-  	if (incline1(a,i,j,grille) == 1) return 1;
-  	if (incline2(a,i,j,grille) == 1) return 1;
+  	if(verticalement(a,j) ==1) return 1;
+  	if(horizontalement(a,i) == 1) return 1;
+  	if (incline1(a,i,j) == 1) return 1;
+  	if (incline2(a,i,j) == 1) return 1;
   	return 0;	
   }
   
@@ -178,45 +116,7 @@
 	}
 	printf("\t 1 2 3 4 5 6 7 \n");
  }
- int CalculValue(int i,int j, char a,char grilleTemporaire[L][C]){
- 		int 	somme_value = 0;
-
- 		
- 		verticalement(a,i,j,grilleTemporaire);		 
-		somme_value += maxRectifie(max_value);	
-
-		horizontalement(a,i,j,grilleTemporaire);
-		somme_value += maxRectifie(max_value);
-		
-		incline1(a,i,j,grilleTemporaire);
-		somme_value += maxRectifie(max_value);
-
-		incline2(a,i,j,grilleTemporaire);
-		somme_value += maxRectifie(max_value);
-	
-	 
-	somme_value +=( 3 - abs(j-3))*30;
- 	return 	 somme_value;
-   }
- int modeAgressive_Moyenne(){
- 	int i , j;
-	char grilleTemporaire[L][C];
- 	
-	for(j = 0 ; j <C ; j++){
-		creerGrille(grilleTemporaire,grille);
-		if((i =CurrentLine(j)) >= 0 ){
-		grilleTemporaire[i][j]	= X ;
-		somme_value_player = CalculValue(i,j,X,grilleTemporaire);
-		creerGrille(grilleTemporaire,grille);
-		grilleTemporaire[i][j]	= O ;
-		somme_value_opponent = CalculValue(i,j,O,grilleTemporaire);
-		EvaluationTable[j] = somme_value_player + (int) ( 0.4 *somme_value_opponent) ;
-	   }
-		//printf("C%d : %d	",j+1,EvaluationTable[j]);
-	}
-	return maxTable(EvaluationTable,C);
-			
- }
+ 
  
  void computerTurn(int niveau){
  	isFree = 0;
@@ -227,7 +127,7 @@
  		  	j = rand() % 7 ;
 			break;
 		 }
- 		case 2: j = modeAgressive_Moyenne();
+ 		case 2: j=2;
  			break;
  		case 3:j =3;
  			break;
@@ -246,7 +146,7 @@
 	else 	
 	grille[i][j]= 'X' ;
 	// voir si ce joueur est un winner 
-	if(isThere_Winner('X',i,j,grille) == 1) {
+	if(isThere_Winner('X',i,j) == 1) {
 		isWinner = 1 ;
 	printf(" \n   L'ordinateur a gagné :	Le	match est perdu 	!	!	! \n");
 	
@@ -275,13 +175,13 @@
 	else 	
 	grille[i][j]= a ;
 	// voir si ce joueur est un winner 
-	if(isThere_Winner(a,i,j,grille) == 1) {
+	if(isThere_Winner(a,i,j) == 1) {
 		isWinner = 1 ;
 	printf(" \n 	Le	 joueur %c 	a	 gagné 	!	!	! \n",a);
 	
 }
   }
-   
+  
  void initialization(){
  	
 	char entrer =' ';
@@ -356,19 +256,5 @@
 	if(grillePleine() == 1 )
 			printf("le match est NULLLL ");
  }
-   
-/* run this program using the console pauser or add your own getch, system("pause") or input loop */
-
-int main(int argc, char *argv[]) {
-	// initialisation de la grille (not affichage!)
-
-	
-	initialization ();
-	if(mode == 1) modeSeulJoueur();
-	else modeDeuxJoueur();
-
-	return 0;
-	// fin du jeu 
-}
 
 
