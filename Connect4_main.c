@@ -262,6 +262,8 @@
  	return 	 somme_value;
    }
  int modeDefensive_Moyenne(){
+ 	somme_value_player = 0 ;
+ 	somme_value_opponent = 0;
  		int i , j;
 	char grilleTemporaire[L][C];
  		for(j = 0 ; j <C ; j++){
@@ -282,6 +284,8 @@
 		
  }
  int modeOffensive_Moyenne(){
+ 	somme_value_player = 0 ;
+ 	somme_value_opponent = 0;
  	int i , j;
 	char grilleTemporaire[L][C]; 	
  	for(j = 0 ; j <C ; j++){
@@ -301,6 +305,8 @@
 	return maxTable(EvaluationTable,C);			
  }
  int oppositeScenario(char grille[L][C]){
+ 	somme_value_player = 0 ;
+ 	somme_value_opponent = 0;
  	int i , j;
 	char grilleTemporaire[L][C]; 	
  	for(j = 0 ; j <C ; j++){
@@ -311,12 +317,13 @@
 		if((i =CurrentLine(j,grilleTemporaire)) >= 0 ){		
 		grilleTemporaire[i][j]	= O ;
 		somme_value_opponent = CalculValue(i,j,O,grilleTemporaire);
-		TableOfOppositeScenario[j] =  somme_value_opponent ;
 		grilleTemporaire[i][j]	= ' ';
+		TableOfOppositeScenario[j] =  somme_value_opponent ;
 	   }
 	   else TableOfOppositeScenario[j] =0 ;
 		
 	}
+	
 	
 	return  maxValueOfTable(TableOfOppositeScenario,C);
 	
@@ -358,14 +365,14 @@
 		grilleTemporaire[i][j]	= ' ' ;
  }		else EvaluationTable[j] = 0; 
  			
-}    	int probableColumn = 	nextMaxTable(EvaluationTable,C) ;
-		grilleTemporaire[CurrentLine(probableColumn,grilleTemporaire)][j]	= X ;
-		printf("opposite : %d  et colonne oppose : %d\n", oppositeScenario(grilleTemporaire), maxTable(TableOfOppositeScenario,C)+1);
-		if(oppositeScenario(grilleTemporaire) > 5000	){
-		printf("offensive\n ");
-		printf("expert : %d \n" ,probableColumn );
-		printf("offensive : %d \n" ,probableColumn );
-		probableColumn = modeOffensive_Moyenne();}
+}    	
+		// on verifie bien que le coup issu de minmax est signifiant qqc
+		int probableColumn = 	nextMaxTable(EvaluationTable,C) ;
+		int a = CurrentLine(probableColumn,grilleTemporaire);
+		grilleTemporaire[a][probableColumn]	= X ;
+		if(oppositeScenario(grilleTemporaire) > 5000	){		
+		probableColumn = modeOffensive_Moyenne();
+		}
 		return  probableColumn ;
  }
  int intermediaiteDepth(char grille[L][C], int depth){ 	 	
@@ -409,6 +416,7 @@
  		case 1: {
  			srand(time(0)); 
  		  	j = rand() % 7 ;
+ 		  	oppositeScenario(grille);
 			break;
 		 }
  		case 2: j = modeDefensive_Moyenne();
@@ -445,7 +453,7 @@
  	isFree = 0;
  		printf("joueur %c entrez le numero de la colonne \n",a);
 	scanf("%d",&j);
-	system("cls");
+	//system("cls");
 	j--;
 	if(j>=0 && j<C){
 		i= L-1;
@@ -512,7 +520,7 @@
 	// si le joureur O  a gag	né on arrete le jeu 
 	if(isWinner == 1) return;
 	delay(500);
-	system("cls");
+	//system("cls");
 	}
 	// si la grille est pleine on dit que le match est nul 
 	if(grillePleine() == 1 )
