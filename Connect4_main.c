@@ -4,6 +4,19 @@
 #define L 6 
 #define C 7
 
+
+	struct Player {
+ 		int id ; 
+ 		char name[50];
+ 		int score ; 
+ 		int niveau ;
+		char grille[L][C];
+ 	};
+ 	
+ 	FILE* file;
+	struct Player currentPlayer ;
+	int isBeginingOfGame = 1;
+	int niveau ;
 	char grille[L][C];
 	int i,j;
 	int isFree = 0 ;
@@ -15,7 +28,179 @@
 	int somme_value_player = 0;
 	int somme_value_opponent = 0;
 	int EvaluationTable[C] ,TableOfOppositeScenario[C];
-	
+    
+    void red () {
+  		printf("\033[1;31m");
+	}
+
+	void yellow (){
+  		printf("\033[1;33m");
+	}
+
+	void reset () {
+  		printf("\033[0m");
+	}
+
+ 	void creerGrille(char grilleTemporaire[L][C],char grille[L][C]) {
+ 	for(i=0;i<L;i++){
+		for(j=0;j<C;j++)
+		{					
+		grilleTemporaire[i][j]=grille[i][j];
+		}
+	}
+ }
+  
+  	void createNewPlayer(){
+  		printf("creating new player : On va créer un neauvou compte pour vous \n");	
+  		printf("Veuillez entrer votre nom s'il vous plait \n");
+  		scanf("%s", currentPlayer.name);
+  		file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "r");
+  		char str[200] ;
+  		int nextId = 1 ;
+  		if(file != NULL){
+   			while( fgets (str, 200, file)!=NULL )  nextId++ ;
+  		}
+   		fclose(file);
+   		currentPlayer.id = nextId;
+   		currentPlayer.score = 0 ;
+   		printf("Votre Id est %d\n", currentPlayer.id);
+   		delay(1000);
+	}
+
+	void loadPlayer(){
+		printf("Entrez votre Id \n");
+		scanf("%d", &currentPlayer.id);
+		loadPlayerData();
+		niveau = currentPlayer.niveau;
+		
+	}
+	void savePlayer(){
+	struct Player loadedPlayer , savedPlayer;
+	FILE* fileTemp = fopen("D:\\Elearning\\info\\Puissance4\\TemporaryFile.txt", "w");
+	file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "r"); 
+	int isNewPlayer = 1 ;
+	char readChar , writtenChar ;
+	char grilleTemporaire[L][C] ;
+	if(file!=NULL && fileTemp != NULL) {
+		
+		while(fscanf(file, "\n%d\t%s\t%d\t%d\t", &loadedPlayer.id ,&loadedPlayer.name , &loadedPlayer.score, &loadedPlayer.niveau ) !=EOF ){    				
+		int i,j;  
+     	for(i=0;i<L;i++) {
+      	for(j=0;j<C;j++) {
+        	fscanf(file,"%c",&readChar);
+        	if(readChar == '|') readChar = ' ';
+        	loadedPlayer.grille[i][j] = readChar ;
+            }
+    	}
+		if(loadedPlayer.id != currentPlayer.id) savedPlayer = loadedPlayer;
+		else{
+		 isNewPlayer = 0 ;
+		 savedPlayer = currentPlayer;
+		}
+		fprintf(fileTemp, "\n%d\t%s\t%d\t%d\t", savedPlayer.id ,savedPlayer.name , savedPlayer.score, savedPlayer.niveau );
+	 	int i2,j2;
+     	for(i2=0;i2<L;i2++) {
+      	for(j2=0;j2<C;j2++)  {
+      		writtenChar = savedPlayer.grille[i2][j2];
+      		if(writtenChar ==' ') writtenChar = '|';
+       		fprintf(fileTemp, "%c", writtenChar);
+   		 }
+   	  }
+	 }
+	   if(isNewPlayer == 1){
+	   	 fprintf(fileTemp, "\n%d\t%s\t%d\t%d\t", currentPlayer.id ,currentPlayer.name , currentPlayer.score, currentPlayer.niveau );
+	 	int i2,j2;
+     	for(i2=0;i2<L;i2++) {
+      	for(j2=0;j2<C;j2++)  {
+       		fprintf(fileTemp, "%c", '|');
+   		 }
+   	  } isNewPlayer = 0 ;
+	   }	 
+	}	
+	else 	printf("null");
+  fclose(fileTemp);	
+  fclose(file);	
+    fileTemp = fopen("D:\\Elearning\\info\\Puissance4\\TemporaryFile.txt", "r");
+	file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "w");
+	 if(file!=NULL && fileTemp != NULL) {
+		while(fscanf(fileTemp, "\n%d\t%s\t%d\t%d\t", &loadedPlayer.id ,&loadedPlayer.name , &loadedPlayer.score, &loadedPlayer.niveau ) != EOF ){    				
+    	int i,j;  
+     	for(i=0;i<L;i++) {
+      	for(j=0;j<C;j++) {
+      	fscanf(fileTemp,"%c",&readChar);
+        if(readChar == '|') readChar = ' ';
+        loadedPlayer.grille[i][j] = readChar ;	
+        //fscanf(fileTemp,"%c",&loadedPlayer.grille[i][j]);
+        //printf("\n%d\t%s\t%d\t%d\tnew char %c\n",loadedPlayer.id ,loadedPlayer.name , loadedPlayer.score, loadedPlayer.niveau,  loadedPlayer.grille[i][j]);
+            }
+    	}
+		fprintf(file, "\n%d\t%s\t%d\t%d\t", loadedPlayer.id ,loadedPlayer.name , loadedPlayer.score, loadedPlayer.niveau );
+	 	int i2,j2;
+     	for(i2=0;i2<L;i2++) {
+      	for(j2=0;j2<C;j2++)  {  		
+       		//fprintf(file, "%c", loadedPlayer.grille[i2][j2]);
+       		writtenChar = loadedPlayer.grille[i2][j2];
+      		if(writtenChar ==' ') writtenChar = '|';
+       		fprintf(file, "%c", writtenChar);
+   		 }
+   	  }
+	 }	 
+	}
+	fclose(fileTemp);	
+  fclose(file);
+}
+void loadPlayerData(){
+	 file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "a+");
+	 int playerId = currentPlayer.id;
+	 char readChar ;
+    if(file!=NULL) { 
+    while(fscanf(file, "\n%d\t%s\t%d\t%d\t", &currentPlayer.id ,&currentPlayer.name , &currentPlayer.score, &currentPlayer.niveau ) != EOF){   
+	   printf("loading all player data \n"); 	 				
+    	int i,j;  
+     	for(i=0;i<L;i++) {
+      	for(j=0;j<C;j++) {
+       		 fscanf(file,"%c",&readChar);
+       		 if(readChar =='|') readChar = ' ';
+       		 currentPlayer.grille[i][j] = readChar;
+            }
+    	}
+		if(playerId == currentPlayer.id) {
+		printf("Ce joueur est enregistré dans la base de donnees \n");
+		return ; 
+		}
+	  }
+	  printf("Ce joueur n'est pas enregistré dans la base de donnees ! \n");
+	  printf("On vous demande de vérifier votre Identifiant ! \n");
+	  loadPlayerWithAllData();	
+    }
+    fclose(file);    	
+}
+		
+	void saveAllPlayerData(int newScore , int niveau,char grille[L][C]){
+		printf("saving all player data\n");
+		currentPlayer.score += newScore;
+		currentPlayer.niveau = niveau;
+		creerGrille(currentPlayer.grille, grille);	
+		savePlayer();
+	}
+	void savePlayerData(int newScore){
+		saveAllPlayerData(newScore, niveau , currentPlayer.grille);
+	}
+	void loadPlayerWithAllData(){
+		printf("Entrez votre Id \n");
+		scanf("%d", &currentPlayer.id);
+		loadPlayerData();
+		creerGrille(grille , currentPlayer.grille);
+		niveau = currentPlayer.niveau;
+		printf("Bonjour %s vous au niveau %d   votre score est %d , c'est le tour de l'ordi \n", currentPlayer.name, currentPlayer.niveau, currentPlayer.score );		
+	}
+	void playerState(int stateNumber ){
+		char state[20] ;
+		if(stateNumber ==0) strcpy( state , "eu un match null");
+		if(stateNumber ==-1) strcpy( state , "perdu le match");
+		if(stateNumber ==1) strcpy( state , "gagne le match");
+		printf(" \nle joueur : %s a %s ,   son score maitenant est : %d \n", currentPlayer.name , state, currentPlayer.score);
+	}
 	void delay(int milli_seconds) 
 { 
     
@@ -85,14 +270,7 @@
 	 	minimum= min(minimum , T[j]);}
 	 	return minimum;
 	 }
-	void creerGrille(char grilleTemporaire[L][C],char grille[L][C]) {
- 	for(i=0;i<L;i++){
-		for(j=0;j<C;j++)
-		{					
-		grilleTemporaire[i][j]=grille[i][j];
-		}
-	}
- }
+	
  	int maxRectifie(int max ){
  		switch(max){
  			case 0 : return 0;
@@ -489,10 +667,31 @@
 		grille[i][j]=' ';}
 		
 	}
+	char answer = 'N';
+	int loadType ;
+	if( isBeginingOfGame == 1){
 	printf("\n\n\n\t\t		Bienvenue à Puissance4  \n\n\n ");
 	printf("\n 				click Entrer  pour continuer  ");
 	while ( entrer!= '\n' ){
 		scanf("%c",&entrer);
+	}	
+	do{	
+	printf("Est ce que vous avez déjà enregistrer une version du jeu 'O'/'N'\n");
+	scanf("%c", &answer);
+	}while(answer != 'O' && answer != 'N');
+	if(answer == 'O'){
+	do{		
+	system("cls");
+	printf( "\n\n veuillez choisir le type de chargement  :\n");
+	printf("\n\n \t  1-Charger tous les données( le point ou je me suis arrété) 					2-Charger seulement les infos importantes (id , name et score) \n");
+	scanf("%d", &loadType);
+	}while(loadType != 1 && loadType != 2);
+	}	
+	}
+	if(answer == 'N' || loadType == 2){	
+	if(isBeginingOfGame == 1){			
+	if(answer =='N') createNewPlayer();
+	else loadPlayer();
 	}
 	do{
 	system("cls");
@@ -500,34 +699,50 @@
 	printf("\n\n \t  1-Mode un seul joueur 					2-Mode deux joueur \n");
 	scanf("%d",&mode);
 	}
-	while(mode != 1 && mode !=2);
-	system("cls");	
+	while(mode != 1 && mode !=2);	
+	}
+	else {
+		loadPlayerWithAllData();			
+	}
+	isBeginingOfGame = 0 ;
+	printf("is beginin g of game : %d ", isBeginingOfGame);
+	//system("cls");	
  } 
  void playWithTheComputer(int niveau){
  	printf("			Vous etes le joueur : O \n");
  	printf("\n			OK ! LET'S GET STARTED !!!!");
  	delay(1000);	
-	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille est pleine
-	
+	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille est pleine	
 	computerTurn(niveau);	
 	affichage();
+	//
 	// si le joureur l'ordinateur  a gagné on arrete le jeu 
-	if(isWinner == 1) return;
+	if(isWinner == 1){
+	 playerState(-1);
+	 return;
+	 }
 	delay(500);
-	demandeAuJoueur(O);
-	
+	demandeAuJoueur(O);	
 	affichage();
+	// on enregistre le jeu avant le prochain coup du joueur 
+	saveAllPlayerData(0, niveau , grille);
 	// si le joureur O  a gag	né on arrete le jeu 
-	if(isWinner == 1) return;
+	if(isWinner == 1){
+	 saveAllPlayerData(10 * niveau, niveau , grille);
+	 playerState(1);
+	 return;
+	 }
 	delay(500);
 	//system("cls");
 	}
 	// si la grille est pleine on dit que le match est nul 
-	if(grillePleine() == 1 )
+	if(grillePleine() == 1 ){
+			saveAllPlayerData(10, niveau , grille);
 			printf("le match est NULLLL ");
+			playerState(0);
+	}
  }
- void modeSeulJoueur(){
- 	int niveau ;
+ void modeSeulJoueur(){ 	
  	do{	
  	system("cls");
 	printf( " veuillez choisir le niveau du jeu :\n");
@@ -543,33 +758,54 @@
 	printf("joueur2 : O \n");
 	affichage();
 	delay(400);
-	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille est pleine
+	while(grillePleine() == 0 ) { // la boucle se répète tant que la grille n'est pas pleine
 	demandeAuJoueur(X);	
 	
 	affichage();
 	// si le joureur X  a gagné on arrete le jeu 
-	if(isWinner == 1) return;
+	if(isWinner == 1){
+	 savePlayerData(20);
+	 playerState(1);
+	 return;
+	 }
 	delay(400);
 	demandeAuJoueur(O);
 	
 	affichage();
 	// si le joureur O  a gagné on arrete le jeu 
-	if(isWinner == 1) return;
+	if(isWinner == 1){
+	 savePlayerData(0);
+	 playerState(-1);
+	 return;
+	 }
 	delay(400);
 	}
 	// si la grille est pleine on dit que le match est nul 
-	if(grillePleine() == 1 )
+	if(grillePleine() == 1 ){	
 			printf("le match est NULLLL ");
+			savePlayerData(10);
+			playerState(0);
+	}
  }  
+ void setPlayer(){
+ /*	printf("\n\n\n\t\t		Bienvenue à Puissance4  \n\n\n ");
+	printf("\n 				click Entrer  pour continuer  ");
+	while ( entrer!= '\n' ){
+		scanf("%c",&entrer);
+	}
+*/	
+ }
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 int main(int argc, char *argv[]) {
+	//setPlayer();
 	// initialisation de la grille (not affichage!)	
 	char tryAgain = 'O';
 	do{
 	isWinner = 0 ;
 	initialization ();
 	if(mode == 1) modeSeulJoueur();
-	else modeDeuxJoueur();
+	else if(mode == 2) modeDeuxJoueur();
+	else playWithTheComputer(currentPlayer.niveau);
 	do{
 	scanf("%c",&tryAgain);
 	printf("\n\nVoulez-vous jouer encore une fois 'O'/'N'\n");

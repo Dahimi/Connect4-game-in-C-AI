@@ -1,0 +1,94 @@
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+#include <stdio.h>
+#include <stdlib.h>
+#define L 6
+#define C 7
+struct Player {
+
+int id ;
+
+char name[20];
+
+int score ;
+
+int niveau ;
+
+char grille[L][C];
+
+};
+
+struct Player currentPlayer ;
+ 
+  FILE* file;
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+
+void savePlayer(){
+	file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "a+"); 
+	if(file!=NULL) {
+		saveFirstData();
+		sauvegarder( currentPlayer.grille);
+	}
+	else 	printf("null");
+  fclose(file);
+
+	
+}
+void saveFirstData(){
+		 fprintf(file, "\n%d\t%s\t%d\t%d\t", currentPlayer.id ,currentPlayer.name , currentPlayer.score, currentPlayer.niveau );
+}
+void sauvegarder(char grille[L][C])
+{
+     int i,j;
+     for(i=0;i<L;i++) {
+
+      for(j=0;j<C;j++)  {
+	   printf("ecrire le caractere à [%d][%d] %c \n", i , j , grille[i][j]);
+       fprintf(file, "Z%c", grille[i][j]);
+       fputc(grille[i][j], file);			
+    }
+    }   
+}
+
+void loadFirstData(){
+	 fscanf(file, "\n%d\t%s\t%d\t%d\t", &currentPlayer.id ,&currentPlayer.name , &currentPlayer.score, &currentPlayer.niveau );
+}
+void loadPlayerData(){
+	 file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "a+");
+    if(file!=NULL) {
+    	loadFirstData();
+    	charger(currentPlayer.grille);
+    }
+    fclose(file);    	
+}
+void charger(char grille[L][C])
+
+ {
+     int i,j;  
+     for(i=0;i<L;i++) {
+
+      for(j=0;j<C;j++) {
+
+       fscanf(file,"%c",&grille[i][j]);
+
+            }
+    }
+}
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+
+int main(int argc, char *argv[]) {
+	currentPlayer.id = 1 ;
+	strcpy(currentPlayer.name,"soufiane");
+	currentPlayer.score = 292;
+	currentPlayer.niveau = 2;
+	char grille[L][C] ;
+	int i , j ;
+	for(i = 0 ; i < L ; i++)
+		for(j = 0 ; j < C ; j++) currentPlayer.grille[i][j] = 'o';
+	//sauvegarder(currentPlayer.grille);
+	savePlayer();
+	loadPlayerData();
+	printf( "\n%d\t%s\t%d\t%d\t", currentPlayer.id ,currentPlayer.name , currentPlayer.score, currentPlayer.niveau );
+	for(i = 0 ; i < L ; i++)
+		for(j = 0 ; j < C ; j++) printf("caractere à [%d][%d] %c \n", i , j , currentPlayer.grille[i][j]);
+	return 0;
+}
