@@ -3,8 +3,8 @@
 #include<time.h>
 #define L 6
 #define C 7
-
-
+// ******* Veuillez changer l'emplacement des fichiers txt (file, fileTemp)  ou' vous allez enregistrer les données
+// creating a structure 
 struct Player {
     int id ;
     char name[50];
@@ -12,7 +12,7 @@ struct Player {
     int niveau ;
     char grille[L][C];
 };
-
+// déclaration des variables globales
 FILE* file;
 struct Player currentPlayer ;
 int isBeginingOfGame = 1;
@@ -28,6 +28,11 @@ int max_value = 0;
 int somme_value_player = 0;
 int somme_value_opponent = 0;
 int EvaluationTable[C] ,TableOfOppositeScenario[C];
+
+
+//  **************   Helper functions  **********************
+
+// fonctions pour modifier la coleur du texte de la console
 
 void red () {
     printf("\033[1;31m");
@@ -46,6 +51,7 @@ void reset () {
     printf("\033[0m");
 }
 
+// creer une graille à partir d'une autre grille
 void creerGrille(char grilleTemporaire[L][C],char grille[L][C]) {
     for(i=0; i<L; i++) {
         for(j=0; j<C; j++)
@@ -82,7 +88,7 @@ void createNewPlayer() {
     printf("Votre Id est %d\n", currentPlayer.id);
     delay(1000);
 }
-
+// le chargement des données : score , nom , id du joueur 
 void loadPlayer() {
 	system("cls");
     blue();
@@ -93,13 +99,18 @@ void loadPlayer() {
     niveau = currentPlayer.niveau;
 
 }
+//  Helper method pour le sauvegarde des données
 void savePlayer() {
+	// variable locaux
     struct Player loadedPlayer , savedPlayer;
+    // Output stream for temporary file 
     FILE* fileTemp = fopen("D:\\Elearning\\info\\Puissance4\\TemporaryFile.txt", "w");
+    // input stream for the original file 
     file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "r");
     int isNewPlayer = 1 ;
     char readChar , writtenChar ;
     char grilleTemporaire[L][C] ;
+    // coupier les données de file dans fileTemp , sauf pour les données du joueur qui seront mises à jour
     if(file!=NULL && fileTemp != NULL) {
 
         while(fscanf(file, "\n%d\t%s\t%d\t%d\t", &loadedPlayer.id ,&loadedPlayer.name , &loadedPlayer.score, &loadedPlayer.niveau ) !=EOF ) {
@@ -140,8 +151,11 @@ void savePlayer() {
     else 	printf("null");
     fclose(fileTemp);
     fclose(file);
+    // input stream from fileTemp
     fileTemp = fopen("D:\\Elearning\\info\\Puissance4\\TemporaryFile.txt", "r");
+    // output stream to the original file
     file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "w");
+    // coupier les données de fileTemp dans file
     if(file!=NULL && fileTemp != NULL) {
         while(fscanf(fileTemp, "\n%d\t%s\t%d\t%d\t", &loadedPlayer.id ,&loadedPlayer.name , &loadedPlayer.score, &loadedPlayer.niveau ) != EOF ) {
             int i,j;
@@ -150,15 +164,12 @@ void savePlayer() {
                     fscanf(fileTemp,"%c",&readChar);
                     if(readChar == '|') readChar = ' ';
                     loadedPlayer.grille[i][j] = readChar ;
-                    //fscanf(fileTemp,"%c",&loadedPlayer.grille[i][j]);
-                    //printf("\n%d\t%s\t%d\t%d\tnew char %c\n",loadedPlayer.id ,loadedPlayer.name , loadedPlayer.score, loadedPlayer.niveau,  loadedPlayer.grille[i][j]);
                 }
             }
             fprintf(file, "\n%d\t%s\t%d\t%d\t", loadedPlayer.id ,loadedPlayer.name , loadedPlayer.score, loadedPlayer.niveau );
             int i2,j2;
             for(i2=0; i2<L; i2++) {
                 for(j2=0; j2<C; j2++)  {
-                    //fprintf(file, "%c", loadedPlayer.grille[i2][j2]);
                     writtenChar = loadedPlayer.grille[i2][j2];
                     if(writtenChar ==' ') writtenChar = '|';
                     fprintf(file, "%c", writtenChar);
@@ -169,11 +180,13 @@ void savePlayer() {
     fclose(fileTemp);
     fclose(file);
 }
+// Helper method pour  chargement des données 
 void loadPlayerData() {
     file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "a+");
     int playerId = currentPlayer.id;
     char readChar ;
     if(file!=NULL) {
+    	// On charges les données les plus importantes : id , nom score et aussi le niveau 
         while(fscanf(file, "\n%d\t%s\t%d\t%d\t", &currentPlayer.id ,&currentPlayer.name , &currentPlayer.score, &currentPlayer.niveau ) != EOF) {
             green();
             int count = 0 ;
@@ -188,6 +201,7 @@ void loadPlayerData() {
             	printf(" \n \tloading  player data  ...\n");
             	delay(300);
        		 }
+       		 // On charge la grille 
             int i,j;
             for(i=0; i<L; i++) {
                 for(j=0; j<C; j++) {
@@ -201,23 +215,27 @@ void loadPlayerData() {
                 return ;
             }
         }
+        // le cas ou le joueur n'est pas dans BD , on envoie un avertissement , et on répète le processus
         printf("\033[1;31m");
         printf("Ce joueur n'est pas enregistré dans la base de donnees ! \n");
         printf("On vous demande de vérifier votre Identifiant ! \n");
+        delay(1000);
         loadPlayerWithAllData();
     }
     fclose(file);
 }
-
+// le sauvegarde de tous les données passées dans paramètres
 void saveAllPlayerData(int newScore , int niveau,char grille[L][C]) {
     currentPlayer.score += newScore;
     currentPlayer.niveau = niveau;
     creerGrille(currentPlayer.grille, grille);
     savePlayer();
 }
+// le sauvegarde du score 
 void savePlayerData(int newScore) {
     saveAllPlayerData(newScore, niveau , currentPlayer.grille);
 }
+//le chargement de toutes les données
 void loadPlayerWithAllData() {
 	system("cls");
     blue();
@@ -240,6 +258,7 @@ void playerState(int stateNumber ) {
     printf(" \nle joueur : %s a %s ,   son score maitenant est : %d \n", currentPlayer.name , state, currentPlayer.score);
     reset();
 }
+// helper method for delay 
 void delay(int milli_seconds)
 {
 
@@ -250,6 +269,9 @@ void delay(int milli_seconds)
     while (clock() < start_time + milli_seconds)
         ;
 }
+
+// ********* helper methods for dealing with arrays ***********************
+
 // cette fonctiion nous permet de trouver la valeur maximal de deux nombre
 int max(int a, int b) {
     return (a <= b) ? b: a;
@@ -261,7 +283,6 @@ int maxTable(int T[], int taille) {
     // find the max
     int maximum = T[0];
     int j ;
-
     for(j = 0 ; j < taille ; j++) {
         maximum= max(maximum , T[j]);
     }
@@ -314,11 +335,13 @@ int minValueOfTable(int T[], int taille) {
     return minimum;
 }
 
+//************ helper functions for finding the winner , knowing the grid state , displaying the grid and much more ... ********************
+
+// Un peu d'amplification de la valeur max !!!!!!!!!!!!!
 int maxRectifie(int max ) {
     switch(max) {
     case 0 :
         return 0;
-
     case 1 :
         return 100 ;
     case 2 :
@@ -329,6 +352,7 @@ int maxRectifie(int max ) {
         return 10000;
     }
 }
+// retourner le numéro de la ligne disponible correspondate à la colonne j dans la grille grille[L][C], et -1 dans le cas échéant 
 int CurrentLine(int j,char grille[L][C]) {
     int i ;
     for(i = L-1 ; i >= 0 ; i--) {
@@ -443,20 +467,7 @@ int grillePleine() {
     }
     return 1 ;
 }
-void affichage2(char grille[L][C]) {
-    printf("\n");
-    for(i=0; i<L; i++) {
-        printf("\t");
-        for(j=0; j<C; j++) {
-            printf("|%c",grille[i][j]);
-
-        }
-        printf("|\n");
-    }
-    printf("\t 1 2 3 4 5 6 7 \n");
-}
-
-// affichage de la grille
+// affichage de la grille principale du jeu 
 void affichage() {
     printf("\n");
     for(i=0; i<L; i++) {
@@ -473,6 +484,12 @@ void affichage() {
     }
     printf("\t 1 2 3 4 5 6 7 \n");
 }
+
+//**************** Helper functions when the computer turn comes *******************************
+
+// retourner l'état de la grille (valeur) passée en paramètre après avoir fait le coup (i,j) 
+// c'est l'équivalent de la fonction d'évaluation en AI 
+// cependant , c'est nous qui l'a conçue nous même !!!!!!!
 int CalculValue(int i,int j, char a,char grilleTemporaire[L][C]) {
     int 	somme_value = 0;
 
@@ -493,6 +510,7 @@ int CalculValue(int i,int j, char a,char grilleTemporaire[L][C]) {
     somme_value +=( 3 - abs(j-3))*30;
     return 	 somme_value;
 }
+// retourner les meilleur coup de point de vue d'un joueur défensive 
 int modeDefensive_Moyenne() {
     somme_value_player = 0 ;
     somme_value_opponent = 0;
@@ -502,19 +520,29 @@ int modeDefensive_Moyenne() {
         EvaluationTable[j] = 0;
     }
     for(j = 0 ; j <C ; j++) {
+    	// coupie 
         creerGrille(grilleTemporaire,grille);
+        // s'il y une ligne disponible pour la colonne j 
         if((i =CurrentLine(j,grilleTemporaire)) >= 0 ) {
+        	// on suppose on a fait ce  coup 
             grilleTemporaire[i][j]	= X ;
+            // on note l'état de la grille après le coup ( le gain) 
             somme_value_player = CalculValue(i,j,X,grilleTemporaire);
+            // coupie encore une fois
             creerGrille(grilleTemporaire,grille);
+            // on suppose que l'adversaire a fait ce coup 
             grilleTemporaire[i][j]	= O ;
+            // on note l'état de la grille après le coup ( la perte) 
             somme_value_opponent = CalculValue(i,j,O,grilleTemporaire);
+            // après plusieur essai avec plusieurs proportions  on a trouvé que c'est la meilleure formmule avec un mode défensive (résultat empirique)
             EvaluationTable[j] = (int) ( 0.4 *somme_value_player )+  somme_value_opponent ;
         }
     }
+    // On retourne les meilleur coup qui va nous échappe l'échec
     return maxTable(EvaluationTable,C);
 
 }
+// la même démarche que le mode défensive , sauf au niveau de la formule ou on favorise le gain du match plus que le fait de s'échapper à la perte 
 int modeOffensive_Moyenne() {
     somme_value_player = 0 ;
     somme_value_opponent = 0;
@@ -536,6 +564,7 @@ int modeOffensive_Moyenne() {
     }
     return maxTable(EvaluationTable,C);
 }
+// cette fonction nous permettra de savoir l'état de la grille après que l'opposé fasse le meilleur coup (the worst situation) 
 int oppositeScenario(char grille[L][C]) {
     somme_value_player = 0 ;
     somme_value_opponent = 0;
@@ -555,12 +584,12 @@ int oppositeScenario(char grille[L][C]) {
         else TableOfOppositeScenario[j] =0 ;
 
     }
-
-
     return  maxValueOfTable(TableOfOppositeScenario,C);
 
 }
-
+// ***********methods more related to AI : minamx algorithm **********************
+// On a fait toutes ces fonctions nous même , après avoir lit des articles vraiment abstraites (qui parlent de l'utilisation générale de l'algorithme parfois dans le cas de puissance4) sur comment fonctionne l'algorithme minmax 
+//Aucune ligne n'est copié d'une autre source
 int finalDepth(char grille[L][C]) {
     char grilleTemporaire[L][C];
     int EvaluationTable[C] ;
@@ -572,13 +601,11 @@ int finalDepth(char grille[L][C]) {
     for(j = 0 ; j <C ; j++)	{
         if((i =CurrentLine(j,grilleTemporaire)) >= 0 ) {
             grilleTemporaire[i][j]	= X ;
-
             EvaluationTable[j] = CalculValue(i,j,X,grilleTemporaire) - oppositeScenario(grilleTemporaire) ;
             grilleTemporaire[i][j]	= ' ' ;
         }
         else EvaluationTable[j] = 0;
     }
-
     return maxValueOfTable(EvaluationTable,C);
 
 }
@@ -602,6 +629,7 @@ int firstDepth(char grille[L][C], int depth) {
     int probableColumn = 	nextMaxTable(EvaluationTable,C) ;
     int a = CurrentLine(probableColumn,grilleTemporaire);
     grilleTemporaire[a][probableColumn]	= X ;
+    // s'il y a une foulie de la part de minmax , on revient au mode offensive 
     if(oppositeScenario(grilleTemporaire) > 5000	) {
         probableColumn = modeOffensive_Moyenne();
     }
@@ -619,7 +647,6 @@ int intermediaiteDepth(char grille[L][C], int depth) {
     for(j = 0 ; j <C ; j++)	{
         if((i =CurrentLine(j,grilleTemporaire)) >= 0 ) {
             grilleTemporaire[i][j]	= a ;
-
             EvaluationTable[j] = futurDeGrille(grilleTemporaire, depth+1);
             grilleTemporaire[i][j]	= ' ' ;
         }		else EvaluationTable[j] = 0;
@@ -636,11 +663,13 @@ int futurDeGrille(char grille[L][C], int depth) {
 
 }
 int modeExpert() {
-    // premierement on voit si le mode intermediaire peut nous faire gagner afin de ne pas perdre nos efforts
+    // premierement on voit si le mode intermediaire peut nous faire gagner ou éviter un échec afin de ne pas perdre nos efforts
     if(EvaluationTable[modeOffensive_Moyenne()] > 5000) return modeOffensive_Moyenne();
     if(EvaluationTable[modeDefensive_Moyenne()] > 5000) return modeDefensive_Moyenne();
+    // après on passe à AI 
     return futurDeGrille(grille, 1);
 }
+// l'ordinateur fait un coup selon le niveau passé en paramètre 
 void computerTurn(int niveau) {
     isFree = 0;
     int j;
@@ -684,6 +713,7 @@ void computerTurn(int niveau) {
 
     }
 }
+// On demande au joueur de saisir une colonne disponible et valide
 void demandeAuJoueur(char a) {
     blue();
     isFree = 0;
@@ -703,6 +733,7 @@ void demandeAuJoueur(char a) {
 
     }
     if( isFree == 0) {
+    	// la colonne n'est pas valide
         printf("\033[1;31m");
         printf("Ce coup n'est pas valide !!! \n");
         reset();
@@ -790,6 +821,7 @@ void playWithTheComputer(int niveau) {
         // si le joureur l'ordinateur  a gagné on arrete le jeu
         if(isWinner == 1) {
         	clearGrid();
+        	saveAllPlayerData(0, niveau , grille);
             playerState(-1);
             return;
         }
@@ -831,7 +863,7 @@ void modeSeulJoueur() {
 }
 void modeDeuxJoueur() {
     green();
-    printf("joueur1 : X \n");
+    printf("%s : X \n", currentPlayer.name);
     printf("joueur2 : O \n");
     reset();
     affichage();
@@ -867,14 +899,6 @@ void modeDeuxJoueur() {
         reset();
     }
 }
-void setPlayer() {
-    /*	printf("\n\n\n\t\t		Bienvenue à Puissance4  \n\n\n ");
-    printf("\n 				click Entrer  pour continuer  ");
-    while ( entrer!= '\n' ){
-    	scanf("%c",&entrer);
-    }
-    */
-}
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 int main(int argc, char *argv[]) {
 	// creating files if they don't exist
@@ -882,7 +906,6 @@ int main(int argc, char *argv[]) {
     file = fopen("D:\\Elearning\\info\\Puissance4\\fichier.txt", "a+");
     fclose(fileTemp);
     fclose(file);
-    //setPlayer();
     // initialisation de la grille (not affichage!)
     char tryAgain = 'O';
     do {
@@ -902,5 +925,3 @@ int main(int argc, char *argv[]) {
     return 0;
     // fin du jeu
 }
-
-
